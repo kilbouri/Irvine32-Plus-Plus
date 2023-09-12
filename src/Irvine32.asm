@@ -2454,7 +2454,7 @@ WriteString PROC
 	cld	; must do this before WriteFile
 
 	INVOKE WriteFile,
-	    -11,     	; console output handle
+	    -11,     	; standard output handle
 	    edx,	; points to string
 	    eax,	; string length
 	    OFFSET bytesWritten,  	; returns number of bytes written
