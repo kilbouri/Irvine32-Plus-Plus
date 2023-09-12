@@ -1896,10 +1896,10 @@ WriteChar PROC
 
 	cld	; clear direction flag
 	INVOKE WriteFile,
-	  -11,	; stdout handle
-	  OFFSET buffer,	; points to string
-	  1,	; string length
-	  OFFSET bytesWritten,  	; returns number of bytes written
+	  consoleOutHandle,
+	  OFFSET buffer,
+	  1, ; string length
+	  OFFSET bytesWritten, ; returns number of bytes written
 	  0
 
 	popfd	; restore flags
@@ -2450,14 +2450,14 @@ WriteString PROC
 
 	CheckInit
 
-	INVOKE Str_length,edx   	; return length of string in EAX
-	cld	; must do this before WriteFile
+	INVOKE Str_length,edx ; return length of string in EAX
+	cld
 
 	INVOKE WriteFile,
-	    -11,     	; standard output handle
-	    edx,	; points to string
-	    eax,	; string length
-	    OFFSET bytesWritten,  	; returns number of bytes written
+	    consoleOutHandle,
+	    edx, ; points to string
+	    eax, ; string length
+	    OFFSET bytesWritten, ; returns number of bytes written
 	    0
 
 	popad
@@ -2477,13 +2477,13 @@ WriteToFile PROC
 .data
 WriteToFile_1 DWORD ?    	; number of bytes written
 .code
-	INVOKE WriteFile,	; write buffer to file
-		eax,	; file handle
-		edx,	; buffer pointer
-		ecx,	; number of bytes to write
+	INVOKE WriteFile,
+		eax, ; file handle
+		edx, ; buffer pointer
+		ecx, ; number of bytes to write
 		ADDR WriteToFile_1,	; number of bytes written
-		0	; overlapped execution flag
-	mov	eax,WriteToFile_1	; return value
+		0 ; overlapped execution flag
+	mov	eax,WriteToFile_1 ; return value
 	ret
 WriteToFile ENDP
 
