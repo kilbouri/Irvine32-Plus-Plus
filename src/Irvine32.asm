@@ -5,24 +5,14 @@ To view this file with proper indentation, set your
 	editor's tab stops to columns 5, 11, 35, and 40.
 
 Recent Updates:
-06/04/05: WaitMsg simplified
-06/08/05: CreateOutputFile, WriteToFile, OpenInputFile, ReadFromFile, CloseFile
-06/10/05: WriteWindowsMsg
-06/13/05: GetCommmandTail
-06/21/05: SetTextColor, GetTextColor
-06/22/05: DumpRegs
-06/05/05: ReadChar
-07/06/05: ReadFromFile
-07/11/05: MsgBox, MsgBoxAsk
-07/15/05: ParseDecimal32, ParseInteger32
-07/19/05: ParseDecimal32, ParseInteger32, ReadHex
-07/24/05: WriteStackFrame, WriteStackFrameName (James Brink)
+05/02/09: Str_trim
+12/11/2011: StrLength
 
 This library was created exlusively for use with the book,
-"Assembly Language for Intel-Based Computers", 4th Edition & 5th Edition,
-by Kip R. Irvine, 2002-2005.
+"Assembly Language for Intel-Based Computers", 4th, 5th, and 6th Editions,
+by Kip R. Irvine, 2002-2010.
 
-Copyright 2002-2005, Prentice-Hall Publishing. No part of this file may be
+Copyright 2002-2012, Prentice-Hall Publishing. No part of this file may be
 reproduced, in any form or by any other means, without permission in writing
 from the author or publisher.
 
@@ -154,11 +144,11 @@ ENDM
 
 MAX_DIGITS = 80
 
-.data		; initialized data
-InitFlag DB 0	; initialization flag
+.data		               ; initialized data
+InitFlag DB 0	               ; initialization flag
 xtable BYTE "0123456789ABCDEF"
 
-.data?		; uninitialized data
+.data?		               ; uninitialized data
 consoleInHandle  DWORD ?     	; handle to console input device
 consoleOutHandle DWORD ?     	; handle to standard output device
 bytesWritten     DWORD ?     	; number of bytes written
@@ -168,7 +158,7 @@ digitBuffer BYTE MAX_DIGITS DUP(?),?
 buffer DB 512 DUP(?)
 bufferMax = ($ - buffer)
 bytesRead DD ?
-sysTime SYSTEMTIME <>	; system time structure
+sysTime SYSTEMTIME <>	     ; system time structure
 
 
 ;*************************************************************
@@ -606,12 +596,9 @@ GetMaxXY PROC
 ; window buffer. These values can change while a program is running
 ; if the user modifies the properties of the application window.
 ; Receives: nothing
-; Returns: DH = rows (Y); DL = columns (X)
-; (range of each is 1-255)
+; Returns: AX = rows (Y); DX = columns (X)
 ;
-; Added to the library on 10/20/2002, on the suggestion of Ben Schwartz.
 ;----------------------------------------------------------------
-	push eax
 	CheckInit
 
 	; Get the console buffer size and attributes
@@ -621,9 +608,7 @@ GetMaxXY PROC
 
 	mov dx,bufInfo.dwSize.X
 	mov ax,bufInfo.dwSize.Y
-	mov dh,al
 
-	pop eax
 	ret
 GetMaxXY ENDP
 
@@ -922,11 +907,12 @@ ParseInteger32 PROC USES ebx ecx edx esi
 ; a value of zero is returned.
 ;
 ; Receives: EDX = string offset, ECX = string length
-; Returns:  If CF=0, the integer is valid, and EAX = binary value.
-;   If CF=1, the integer is invalid and EAX = 0.
+; Returns:  If OF=0, the integer is valid, and EAX = binary value.
+;   If OF=1, the integer is invalid and EAX = 0.
 ;
 ; Created 7/15/05, using Gerald Cahill's 10/10/03 corrections.
 ; Updated 7/19/05, to skip over tabs
+; Comments updated 11/20/09
 ;--------------------------------------------------------
 .data
 overflow_msgL BYTE  " <32-bit integer overflow>",0
@@ -1100,7 +1086,7 @@ RandomRange ENDP
 Randomize PROC
 ;
 ; Re-seeds the random number generator with the current time
-; in seconds.
+; in seconds. Calls GetSystemTime, which is accurate to 10ms.
 ; Receives: nothing
 ; Returns: nothing
 ; Last update: 09/06/2002
@@ -1294,10 +1280,10 @@ ReadInt PROC USES ecx edx
 ; All spaces return a valid integer, value zero.
 
 ; Receives: nothing
-; Returns:  If CF=0, the integer is valid, and EAX = binary value.
-;   If CF=1, the integer is invalid and EAX = 0.
+; Returns:  If OF=0, the integer is valid, and EAX = binary value.
+;   If OF=1, the integer is invalid and EAX = 0.
 ;
-; Updated: 7/15/05
+; Updated: 7/15/05, comments updated 11/20/09
 ;--------------------------------------------------------
 
 ; Input a signed decimal string.
@@ -1332,8 +1318,8 @@ ReadKey PROC USES ecx
 ; ** Note: calling ReadKey prevents Ctrl-C from being used to terminate a program.
 ;
 ; Written by Richard Stam, used by permission.
-; Modified 4/6/03 by Irvine; modified 4/16/03 by Jerry Cahill
-; ; 6/21/05, Irvine: changed evEvents from WORD to DWORD
+; Revision history:
+;    Irvine, 6/21/05 -changed evEvents from WORD to DWORD
 ;------------------------------------------------------------------------------
 .data
 evBuffer INPUT_RECORD <>	; Buffers our key "INPUT_RECORD"
@@ -1363,16 +1349,16 @@ Peek:
 	jz   NoKey						; No pending events, so done.
 
 	cmp  evBuffer.eventType,KEY_EVENT					; Is it a key event?
-	jne  Peek						; No -> Peek for next event
-	TEST evBuffer.Event.bKeyDown, KBDOWN_FLAG		; is it a key down event?
-	jz   Peek						; No -> Peek for next event
+	jne  Peek						                    ; No -> Peek for next event
+	TEST evBuffer.Event.bKeyDown, KBDOWN_FLAG		     ; is it a key down event?
+	jz   Peek						                    ; No -> Peek for next event
 
 	mov  ax,evBuffer.Event.wRepeatCount				; Set our internal repeat counter
 	mov  evRepeat,ax
 
 HaveKey:
 	mov  al,evBuffer.Event.uChar.AsciiChar				; copy Ascii char to al
-	mov  ah,BYTE PTR evBuffer.Event.wVirtualScanCode	; copy Scan code to ah
+	mov  ah,BYTE PTR evBuffer.Event.wVirtualScanCode	     ; copy Scan code to ah
 	mov  dx,evBuffer.Event.wVirtualKeyCode				; copy Virtual key code to dx
 	mov  ebx,evBuffer.Event.dwControlKeyState			; copy keyboard flags to ebx
 
@@ -1380,34 +1366,33 @@ HaveKey:
 	; Don't process them unless used in combination with another key
 	.IF dx == VK_SHIFT || dx == VK_CONTROL || dx == VK_MENU || \
 	  dx == VK_CAPITAL || dx == VK_NUMLOCK || dx == VK_SCROLL
-	  jmp Peek					; Don't process -> Peek for next event
+	  jmp Peek					                    ; Don't process -> Peek for next event
 	.ENDIF
 
-	call  ReadKeyTranslate					; Translate scan code compatability
+	call  ReadKeyTranslate					          ; Translate scan code compatability
 
-	dec  evRepeat					; Decrement our repeat counter
-	or   dx,dx					; Have key: clear the Zero flag
+	dec  evRepeat					                    ; Decrement our repeat counter
+	or   dx,dx					                    ; Have key: clear the Zero flag
 	jmp  Done
 
 NoKey:
-	mov  evRepeat,0					; Reset our repeat counter
-	test eax,0					; No key: set ZF=1 and quit
+	mov  evRepeat,0					               ; Reset our repeat counter
+	test eax,0					                    ; No key: set ZF=1 and quit
 
 Done:
-    pushfd 					; save Zero flag
+    pushfd 					                         ; save Zero flag
     pushad
-           					; Restore Console mode
+           					                         ; Restore Console mode
     INVOKE SetConsoleMode,consoleInHandle,saveFlags
 
-    ;Unless we call ReadKeyFlush in Windows 98, the key we just read
-    ;reappears the next time ReadString is called! We don't know why.
+    ; Unless we call ReadKeyFlush in Windows 98, the key we just read
+    ; reappears the next time ReadString is called. We don't know why this happens.
     call ReadKeyFlush
 
     popad
-    popfd  					; restore Zero flag
-	ret
+    popfd  					                         ; restore Zero flag
+     ret
 ReadKey ENDP
-
 
 ;------------------------------------------------------------------------------
 ReadKeyFlush PROC
@@ -1465,53 +1450,53 @@ CaseSize = ($ - SpecialCases)			; Special case table element size
 	BYTE 0			; End of Table
 
 .code
-	pushfd					; Push flags to save ZF of ReadKey
+	pushfd					                 ; Push flags to save ZF of ReadKey
 	mov  esi,0
 
 	; Search through the special cases table
 Search:
-	cmp  SpecialCases[esi],0					; Check for end of search table
+	cmp  SpecialCases[esi],0					  ; Check for end of search table
 	je   NotFound
 
-	cmp  dl,SpecialCases[esi]					; Check if special case is found
+	cmp  dl,SpecialCases[esi]				  ; Check if special case is found
 	je   Found
 
-	add  esi,CaseSize					; Increment our table index
-	jmp  Search					; Continue searching
+	add  esi,CaseSize					       ; Increment our table index
+	jmp  Search					            ; Continue searching
 
 Found:
 	.IF ebx & CTRL_MASK
-	  mov  ah,SpecialCases[esi+2]					; Specify the Ctrl scan code
-	  mov  al,0					; Updated char for special keys
+	  mov  ah,SpecialCases[esi+2]				  ; Specify the Ctrl scan code
+	  mov  al,0					            ; Updated char for special keys
 	.ELSEIF ebx & ALT_MASK
-	  mov  ah,SpecialCases[esi+3]					; Specify the Alt scan code
-	  mov  al,0					; Updated char for special keys
+	  mov  ah,SpecialCases[esi+3]				  ; Specify the Alt scan code
+	  mov  al,0					            ; Updated char for special keys
 	.ELSE
-	  mov ah,SpecialCases[esi+1]					; Specify the normal scan code
+	  mov ah,SpecialCases[esi+1]				  ; Specify the normal scan code
 	.ENDIF
 	jmp  Done
 
 NotFound:
-	.IF ! (ebx & KEY_MASKS)					; Done if not shift/ctrl/alt combo
+	.IF ! (ebx & KEY_MASKS)				       ; Done if not shift/ctrl/alt combo
 	  jmp  Done
 	.ENDIF
 
-	.IF dx >= VK_F1 && dx <= VK_F10				; Check for F1 to F10 keys
+	.IF dx >= VK_F1 && dx <= VK_F10			  ; Check for F1 to F10 keys
 	  .IF ebx & CTRL_MASK
-	    add ah,23h					; 23h = Hex diff for Ctrl/Fn keys
+	    add ah,23h					            ; 23h = Hex diff for Ctrl/Fn keys
 	  .ELSEIF ebx & ALT_MASK
-	    add ah,2Dh					; 2Dh = Hex diff for Alt/Fn keys
+	    add ah,2Dh					            ; 2Dh = Hex diff for Alt/Fn keys
 	  .ELSEIF ebx & SHIFT_MASK
-	    add ah,19h					; 19h = Hex diff for Shift/Fn keys
+	    add ah,19h					            ; 19h = Hex diff for Shift/Fn keys
 	  .ENDIF
-	.ELSEIF al >= '0' && al <= '9'				; Check for Alt/1 to Alt/9
+	.ELSEIF al >= '0' && al <= '9'			  ; Check for Alt/1 to Alt/9
 	  .IF ebx & ALT_MASK
-	    add ah,76h					; 76h = Hex diff for Alt/n keys
+	    add ah,76h					            ; 76h = Hex diff for Alt/n keys
 	    mov al,0
 	  .ENDIF
-	.ELSEIF dx == VK_TAB					; Check for Shift/Tab (backtab)
+	.ELSEIF dx == VK_TAB					  ; Check for Shift/Tab (backtab)
 	  .IF ebx & SHIFT_MASK
-	    mov al,0					; ah already has 0Fh, al=0 for special
+	    mov al,0					            ; ah already has 0Fh, al=0 for special
 	  .ENDIF
 	.ENDIF
 
@@ -1534,49 +1519,48 @@ ReadString PROC
 ; types more characters than (ECX-1), the excess characters
 ; are ignored.
 ; Written by Kip Irvine and Gerald Cahill
-;
 ; Last update: 11/19/92, 03/20/2003
 ;--------------------------------------------------------
 .data
-_$$temp DWORD ?		; added 03/20/03
+_$$temp DWORD ?		       ; added 03/20/03
 .code
 	pushad
 	CheckInit
 
-	mov edi,edx		; set EDI to buffer offset
-	mov bufSize,ecx		; save buffer size
+	mov edi,edx		       ; set EDI to buffer offset
+	mov bufSize,ecx		  ; save buffer size
 
 	push edx
 	INVOKE ReadConsole,
-	  consoleInHandle,		; console input handle
-	  edx,		; buffer offset
-	  ecx,		; max count
+	  consoleInHandle,		  ; console input handle
+	  edx,		            ; buffer offset
+	  ecx,		            ; max count
 	  OFFSET bytesRead,
 	  0
 	pop edx
 	cmp bytesRead,0
-	jz  L5 		; skip move if zero chars input
+	jz  L5 		                ; skip move if zero chars input
 
-	dec bytesRead		; make first adjustment to bytesRead
+	dec bytesRead		           ; make first adjustment to bytesRead
 	cld		; search forward
-	mov ecx,bufSize		; repetition count for SCASB
-	mov al,0Ah		; scan for 0Ah (Line Feed) terminal character
+	mov ecx,bufSize		      ; repetition count for SCASB
+	mov al,0Ah		           ; scan for 0Ah (Line Feed) terminal character
 	repne scasb
-	jne L1		; if not found, jump to L1
+	jne L1		                ; if not found, jump to L1
 
 	;if we reach this line, length of input string <= (bufsize - 2)
 
-	dec bytesRead		; second adjustment to bytesRead
-	sub edi,2		; 0Ah found: back up two positions
-	cmp edi,edx 		; don't back up to before the user's buffer
+	dec bytesRead		           ; second adjustment to bytesRead
+	sub edi,2		                ; 0Ah found: back up two positions
+	cmp edi,edx 		           ; don't back up to before the user's buffer
 	jae L2
-	mov edi,edx 		; 0Ah must be the only byte in the buffer
-	jmp L2		; and jump to L2
+	mov edi,edx 		           ; 0Ah must be the only byte in the buffer
+	jmp L2		                ; and jump to L2
 
-L1:	mov edi,edx		; point to last byte in buffer
+L1:	mov edi,edx		           ; point to last byte in buffer
 	add edi,bufSize
 	dec edi
-	mov BYTE PTR [edi],0    		; insert null byte
+	mov BYTE PTR [edi],0    	      ; insert null byte
 
 	; Save the current console mode
 	INVOKE GetConsoleMode,consoleInHandle,ADDR saveFlags
@@ -1589,10 +1573,10 @@ L6:	INVOKE ReadConsole,consoleInHandle,ADDR junk,1,ADDR _$$temp,0
 	cmp al,0Ah 		; the terminal line feed character
 	jne L6     		; keep looking, it must be there somewhere
 
-	INVOKE SetConsoleMode,consoleInHandle,saveFlags ; restore console mode.
+	INVOKE SetConsoleMode,consoleInHandle,saveFlags    ; restore console mode.
 	jmp L5
 
-L2:	mov BYTE PTR [edi],0		; insert null byte
+L2:	mov BYTE PTR [edi],0		; insert null byte at end of string
 
 L5:	popad
 	mov eax,bytesRead
@@ -1611,7 +1595,7 @@ SetTextColor PROC
 ;------------------------------------------------------------
 
 	pushad
-	CheckInit	; added 6/20/05
+	CheckInit
 
  	INVOKE SetConsoleTextAttribute, consoleOutHandle, ax
 
@@ -1619,38 +1603,35 @@ SetTextColor PROC
 	ret
 SetTextColor ENDP
 
-
 ;---------------------------------------------------------
 StrLength PROC
 ;
 ; Returns the length of a null-terminated string.
 ; Receives: EDX points to the string.
 ; Returns: EAX = string length.
-; Last update: 6/9/05
+; Re-enabled 12/11/2011 (was previously commented out)
 ;---------------------------------------------------------
-	push	edx
-	mov	eax,0     	; character count
+    push	edx
+    mov	eax,0     	       ; holds character count
 
-L1:	cmp	BYTE PTR [edx],0	; end of string?
-	je	L2	; yes: quit
-	inc	edx	; no: point to next
-	inc	eax	; add 1 to count
-	jmp	L1
+L1: cmp	BYTE PTR [edx],0	  ; end of string?
+    je	L2	                 ; yes: quit
+    inc	edx	                 ; no: point to next
+    inc	eax	                 ; add 1 to count
+    jmp	L1
 
 L2: pop	edx
-	ret
+    ret
 StrLength ENDP
-
 
 ;----------------------------------------------------------
 Str_compare PROC USES eax edx esi edi,
 	string1:PTR BYTE,
 	string2:PTR BYTE
 ;
-; Compare two strings.
-; Returns nothing, but the Zero and Carry flags are affected
+; Compare two strings. Affects the Zero and Carry flags 
 ; exactly as they would be by the CMP instruction.
-; Last update: 1/18/02
+; Returns: nothing
 ;-----------------------------------------------------
     mov esi,string1
     mov edi,string2
@@ -1678,17 +1659,17 @@ Str_copy PROC USES eax ecx esi edi,
  	target:PTR BYTE		; target string
 ;
 ; Copy a string from source to target.
+; Returns: nothing
 ; Requires: the target string must contain enough
-;           space to hold a copy of the source string.
-; Last update: 1/18/02
+; space to hold a copy of the source string.
 ;----------------------------------------------------------
 	INVOKE Str_length,source 		; EAX = length source
-	mov ecx,eax		; REP count
-	inc ecx         		; add 1 for null byte
+	mov ecx,eax		               ; REP count
+	inc ecx         		          ; add 1 for null byte
 	mov esi,source
 	mov edi,target
-	cld               		; direction = up
-	rep movsb      		; copy the string
+	cld               		          ; direction = up
+	rep movsb      		          ; copy the string
 	ret
 Str_copy ENDP
 
@@ -1700,20 +1681,49 @@ Str_length PROC USES edi,
 ; Return the length of a null-terminated string.
 ; Receives: pString - pointer to a string
 ; Returns: EAX = string length
-; Last update: 1/18/02
 ;---------------------------------------------------------
 	mov edi,pString
-	mov eax,0     	; character count
+	mov eax,0     	                ; character count
 L1:
-	cmp BYTE PTR [edi],0	; end of string?
-	je  L2	; yes: quit
-	inc edi	; no: point to next
-	inc eax	; add 1 to count
+	cmp BYTE PTR [edi],0	      ; end of string?
+	je  L2	                     ; yes: quit
+	inc edi	                     ; no: point to next
+	inc eax	                     ; add 1 to count
 	jmp L1
 L2: ret
 Str_length ENDP
 
+;-----------------------------------------------------------
+Str_trim PROC USES eax ecx edi,
+	pString:PTR BYTE,			; points to string
+	char:BYTE					; char to remove
+;
+; Remove all occurences of a given character from
+; the end of a string. 
+; Returns: nothing
+; Last update: 5/2/09
+;-----------------------------------------------------------
+	mov  edi,pString
+	INVOKE Str_length,edi         ; puts length in EAX
+	cmp  eax,0                    ; length zero?
+	je   L3                       ; yes: exit now
+	mov  ecx,eax                  ; no: ECX = string length
+	dec  eax                      
+	add  edi,eax                  ; point to null byte at end
+	
+L1:	mov  al,[edi]				; get a character
+    	cmp  al,char                  ; character to be trimmed?
+    	jne  L2                       ; no: insert null byte
+    	dec  edi                      ; yes: keep backing up
+     loop L1                       ; until beginning reached
 
+L2:  mov  BYTE PTR [edi+1],0       ; insert a null byte
+L3:  ret
+Str_trim ENDP
+
+
+COMMENT !
+******************* OLD VERSION - NO LONGER USED ************
 ;-----------------------------------------------------------
 Str_trim PROC USES eax ecx edi,
 	pString:PTR BYTE,		; points to string
@@ -1739,7 +1749,7 @@ Str_trim PROC USES eax ecx edi,
 L1:	mov  BYTE PTR [edi+2],0		; insert null byte
 L2:	ret
 Str_trim ENDP
-
+********************************************************** !
 
 ;---------------------------------------------------
 Str_ucase PROC USES eax esi,
@@ -1885,8 +1895,8 @@ WriteChar PROC
 	mov  buffer,al
 
 	cld	; clear direction flag
-	INVOKE WriteConsole,
-	  consoleOutHandle,	; console output handle
+	INVOKE WriteFile,
+	  -11,	; stdout handle
 	  OFFSET buffer,	; points to string
 	  1,	; string length
 	  OFFSET bytesWritten,  	; returns number of bytes written
@@ -2441,10 +2451,10 @@ WriteString PROC
 	CheckInit
 
 	INVOKE Str_length,edx   	; return length of string in EAX
-	cld	; must do this before WriteConsole
+	cld	; must do this before WriteFile
 
-	INVOKE WriteConsole,
-	    consoleOutHandle,     	; console output handle
+	INVOKE WriteFile,
+	    -11,     	; standard output handle
 	    edx,	; points to string
 	    eax,	; string length
 	    OFFSET bytesWritten,  	; returns number of bytes written
@@ -2828,4 +2838,3 @@ L9:	imul Lsign                  ; EAX = EAX * sign
 
 L10:ret
 ReadInt ENDP
-
