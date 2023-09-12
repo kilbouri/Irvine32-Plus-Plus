@@ -1,88 +1,87 @@
 Title Irvine32 Link Library Source Code         (Irvine32.asm)
 
-Comment @
-To view this file with proper indentation, set your 
-	editor's tab stops to columns 5, 11, 35, and 40.
+; To view this file with proper indentation, set your 
+; 	editor's tab stops to columns 5, 11, 35, and 40.
 
-Recent Updates:
-05/02/09: Str_trim
-12/11/2011: StrLength
+; Recent Updates:
+; 05/02/09: Str_trim
+; 12/11/2011: StrLength
 
-This library was created exlusively for use with the book,
-"Assembly Language for Intel-Based Computers", 4th, 5th, and 6th Editions,
-by Kip R. Irvine, 2002-2010.
+; This library was created exlusively for use with the book,
+; "Assembly Language for Intel-Based Computers", 4th, 5th, and 6th Editions,
+; by Kip R. Irvine, 2002-2010.
 
-Copyright 2002-2012, Prentice-Hall Publishing. No part of this file may be
-reproduced, in any form or by any other means, without permission in writing
-from the author or publisher.
+; Copyright 2002-2012, Prentice-Hall Publishing. No part of this file may be
+; reproduced, in any form or by any other means, without permission in writing
+; from the author or publisher.
 
-Acknowledgements:
-------------------------------
-Most of the code in this library was written by Kip Irvine.
-Special thanks to Gerald Cahill for his many insights, suggestions, and bug fixes.
-Thanks to Richard Stam for his development of Readkey-related procedures.
-Thanks to James Brink for helping to test the library.
+; Acknowledgements:
+; ------------------------------
+; Most of the code in this library was written by Kip Irvine.
+; Special thanks to Gerald Cahill for his many insights, suggestions, and bug fixes.
+; Thanks to Richard Stam for his development of Readkey-related procedures.
+; Thanks to James Brink for helping to test the library.
 
-Alphabetical Listing of Public Procedures
-----------------------------------
-(Unless otherwise marked, all procedures are documented in Chapter 5.)
+; Alphabetical Listing of Public Procedures
+; ----------------------------------
+; (Unless otherwise marked, all procedures are documented in Chapter 5.)
 
-CloseFile
-Clrscr
-CreateOutputFile
-Crlf
-Delay
-DumpMem
-DumpRegs
-GetCommandTail
-GetDateTime	Chapter 11
-GetMaxXY
-GetMseconds
-GetTextColor
-Gotoxy
-IsDigit
-MsgBox
-MsgBoxAsk
-OpenInputFile
-ParseDecimal32
-ParseInteger32
-Random32
-Randomize
-RandomRange
-ReadChar
-ReadDec
-ReadFromFile
-ReadHex
-ReadInt
-ReadKey
-ReadKeyFlush
-ReadString
-SetTextColor
-Str_compare	Chapter 9
-Str_copy		Chapter 9
-Str_length	Chapter 9
-Str_trim		Chapter 9
-Str_ucase		Chapter 9
-WaitMsg
-WriteBin
-WriteBinB
-WriteChar
-WriteDec
-WriteHex
-WriteHexB
-WriteInt
-WriteStackFrame	Chapter 8  (James Brink)
-WriteStackFrameName	Chapter 8  (James Brink)
-WriteString
-WriteToFile
-WriteWindowsMsg
+; CloseFile
+; Clrscr
+; CreateOutputFile
+; Crlf
+; Delay
+; DumpMem
+; DumpRegs
+; GetCommandTail
+; GetDateTime	Chapter 11
+; GetMaxXY
+; GetMseconds
+; GetTextColor
+; Gotoxy
+; IsDigit
+; MsgBox
+; MsgBoxAsk
+; OpenInputFile
+; ParseDecimal32
+; ParseInteger32
+; Random32
+; Randomize
+; RandomRange
+; ReadChar
+; ReadDec
+; ReadFromFile
+; ReadHex
+; ReadInt
+; ReadKey
+; ReadKeyFlush
+; ReadString
+; SetTextColor
+; Str_compare	Chapter 9
+; Str_copy		Chapter 9
+; Str_length	Chapter 9
+; Str_trim		Chapter 9
+; Str_ucase		Chapter 9
+; WaitMsg
+; WriteBin
+; WriteBinB
+; WriteChar
+; WriteDec
+; WriteHex
+; WriteHexB
+; WriteInt
+; WriteStackFrame	Chapter 8  (James Brink)
+; WriteStackFrameName	Chapter 8  (James Brink)
+; WriteString
+; WriteToFile
+; WriteWindowsMsg
 
-	          Implementation Notes:
-	          --------------------
-1. The Windows Sleep function modifies the contents of ECX.
-2. Remember to save and restore all 32-bit general purpose
-   registers (except EAX) before calling MS-Windows API functions.
----------------------------------------------------------------------@
+; 	          Implementation Notes:
+; 	          --------------------
+; 1. The Windows Sleep function modifies the contents of ECX.
+; 2. Remember to save and restore all 32-bit general purpose
+;    registers (except EAX) before calling MS-Windows API functions.
+
 ;OPTION CASEMAP:NONE	; optional: force case-sensitivity
 
 INCLUDE Irvine32.inc	; function prototypes for this library
