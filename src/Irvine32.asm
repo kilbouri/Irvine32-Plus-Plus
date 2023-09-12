@@ -1531,12 +1531,13 @@ _$$temp DWORD ?		       ; added 03/20/03
 	mov bufSize,ecx		  ; save buffer size
 
 	push edx
-	INVOKE ReadConsole,
-	  consoleInHandle,		  ; console input handle
-	  edx,		            ; buffer offset
-	  ecx,		            ; max count
+	INVOKE ReadFile,
+	  consoleInHandle,
+	  edx, ; buffer offset
+	  ecx, ; max count
 	  OFFSET bytesRead,
 	  0
+
 	pop edx
 	cmp bytesRead,0
 	jz  L5 		                ; skip move if zero chars input
@@ -1568,7 +1569,13 @@ L1:	mov edi,edx		           ; point to last byte in buffer
 	INVOKE SetConsoleMode,consoleInHandle,0
 
 	; Clear excess characters from the buffer, 1 byte at a time
-L6:	INVOKE ReadConsole,consoleInHandle,ADDR junk,1,ADDR _$$temp,0
+L6:	INVOKE ReadFile,
+        consoleInHandle,
+        ADDR junk,
+        1,
+        ADDR _$$temp,
+        0
+        
 	mov al,BYTE PTR junk
 	cmp al,0Ah 		; the terminal line feed character
 	jne L6     		; keep looking, it must be there somewhere
