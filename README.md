@@ -10,6 +10,7 @@ The above is from Eazybright/Irvine32. The same is true here, however I have mad
 ## Changes
 
 1. Replace calls to `WriteConsole` with `WriteFile` (to standard output). This change allows modern shells to work with the output of binaries using this library.
+2. Replace calls to `ReadConsole` with `ReadFile` (from standard output). This change allows modern shells to pipe/redirect the output of other programs into binaries using this library. 
 
 ## Development Requirements
 
