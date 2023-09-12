@@ -3,7 +3,7 @@ name: Irvine32 Plus Plus Build
 on:
   push:
     branches:
-      - main
+      - master
   workflow_dispatch:
 
 jobs:
@@ -20,4 +20,4 @@ jobs:
           sdk-version: 22621
 
       - name: Run build.bat
-        run: echo %PATH% && ./build.bat && ls
+        run: echo $env:Path
