@@ -2451,7 +2451,7 @@ WriteString PROC
 	CheckInit
 
 	INVOKE Str_length,edx   	; return length of string in EAX
-	cld	; must do this before WriteConsole
+	cld	; must do this before WriteFile
 
 	INVOKE WriteFile,
 	    -11,     	; console output handle
