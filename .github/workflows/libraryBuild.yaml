@@ -20,4 +20,4 @@ jobs:
           sdk-version: 22621
 
       - name: Run build.bat
-        run: ./build.bat && ls
+        run: echo %PATH% && ./build.bat && ls
