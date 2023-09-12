@@ -1,11 +1,12 @@
 # Visual Studio directory
-**/.vs
+src/.vs
 
 # Object files can be generated during the build
-**/*.obj
+src/*.obj
 
-# This is our main build artifact, we don't need to include it lol
-**/Irvine32.lib
+# These are main build artifacts, we don't need to include them lol
+src/Irvine32.lib
+Irvine32-Plus-Plus.zip
 
 # Residue from test builds. Left on disk for sake of debugging.
 TestFile.exe

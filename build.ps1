@@ -8,6 +8,6 @@ ml.exe -c -coff floatio.asm
 lib.exe /SUBSYSTEM:CONSOLE Irvine32.obj floatio.obj
 
 # Create an archive of the required files
-Compress-Archive -LiteralPath "./Irvine32.inc", "./Irvine32.lib", "SmallWin.inc", "VirtualKeys.inc" -DestinationPath "../Irvine32-Plus-Plus.zip"
+Compress-Archive -Update -LiteralPath "./Irvine32.inc", "./Irvine32.lib", "SmallWin.inc", "VirtualKeys.inc" -DestinationPath "../Irvine32-Plus-Plus.zip"
 
 cd ..
