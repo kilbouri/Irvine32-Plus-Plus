@@ -1895,8 +1895,8 @@ WriteChar PROC
 	mov  buffer,al
 
 	cld	; clear direction flag
-	INVOKE WriteConsole,
-	  consoleOutHandle,	; console output handle
+	INVOKE WriteFile,
+	  -11,	; stdout handle
 	  OFFSET buffer,	; points to string
 	  1,	; string length
 	  OFFSET bytesWritten,  	; returns number of bytes written
@@ -2453,8 +2453,8 @@ WriteString PROC
 	INVOKE Str_length,edx   	; return length of string in EAX
 	cld	; must do this before WriteConsole
 
-	INVOKE WriteConsole,
-	    consoleOutHandle,     	; console output handle
+	INVOKE WriteFile,
+	    -11,     	; console output handle
 	    edx,	; points to string
 	    eax,	; string length
 	    OFFSET bytesWritten,  	; returns number of bytes written
@@ -2838,4 +2838,3 @@ L9:	imul Lsign                  ; EAX = EAX * sign
 
 L10:ret
 ReadInt ENDP
-
