@@ -11,6 +11,13 @@ The above is from Eazybright/Irvine32. The same is true here, however I have mad
 
 1. Replace calls to `WriteConsole` with `WriteFile` (to standard output). This change allows modern shells to work with the output of binaries using this library.
 
+## Development Requirements
+
+- Windows SDK
+- C++ build tools
+
+This repo does provide a VS project if you wish to use it. It will make your life much easier, as VS will deal with some environment variable bullpoop for you.
+
 ## Credits
 
 Assembly Language for x86 Processors, Sixth Edition.
