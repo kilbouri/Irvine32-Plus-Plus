@@ -26,6 +26,7 @@ main PROC
     mov edx, OFFSET promptMsg
     call WriteString
     call ReadChar
+    call WriteChar
     mov inputChar, al
     call Crlf
     
@@ -35,14 +36,12 @@ main PROC
     mov edx, OFFSET inputString
     mov ecx, SIZEOF inputString
     call ReadString
-    call Crlf
     
     ; Read a hexadecimal value
     mov edx, OFFSET hexMsg
     call WriteString
     call ReadHex
     mov hexValue, eax
-    call Crlf
     
     ; Output the entered values
     mov edx, OFFSET outputCharMsg
